@@ -2,6 +2,7 @@ numpy < 2.0.0
 mediapipe
 opencv-python-headless==4.10.0.82
 dlib
+pandas
 imageio==2.34.1
 importlib-metadata==7.1.0
 importlib_metadata==7.1.0

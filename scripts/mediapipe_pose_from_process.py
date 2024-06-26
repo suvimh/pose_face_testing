@@ -1,7 +1,6 @@
 import cv2
 import mediapipe as mp
-# from tqdm.auto import tqdm
-# import pandas as pd
+import pandas as pd
 
 def get_mediapipe_landmarks(input_video_path, output_video_path=None, output_video=False):
     """
@@ -13,8 +12,8 @@ def get_mediapipe_landmarks(input_video_path, output_video_path=None, output_vid
         output_video (bool, optional): Whether to save the output video. Defaults to False.
 
     Returns:
-        np.ndarray: A numpy array of shape (num_frames, num_landmarks, 3) containing the x, y, and z coordinates
-                    of the detected landmarks for each frame. The array is of type float32.
+        pd.DataFrame: A DataFrame containing landmarks for each frame. Columns are landmark numbers
+                     and values are dictionaries with 'x', 'y', and 'z' (if available).
     """
     cap = cv2.VideoCapture(input_video_path)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -31,9 +30,6 @@ def get_mediapipe_landmarks(input_video_path, output_video_path=None, output_vid
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5) as pose:
 
-        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        # pbar3 = tqdm(total=total_frames, desc='Processing Frames')
-
         while cap.isOpened():
             success, image = cap.read()
             if not success:
@@ -45,14 +41,20 @@ def get_mediapipe_landmarks(input_video_path, output_video_path=None, output_vid
 
             pose_results = pose.process(image_rgb)
             if pose_results.pose_landmarks:
-                landmarks = []
-                for landmark in pose_results.pose_landmarks.landmark:
-                    landmarks.append({
-                        'x': landmark.x,
-                        'y': landmark.y,
-                        'z': landmark.z if landmark.HasField('z') else None
-                    })
+                landmarks = {}
+                for idx, landmark in enumerate(pose_results.pose_landmarks.landmark):
+                    if landmark.visibility < 0.5:
+                        # Landmark not visible, set as None
+                        landmarks[idx] = None
+                    else:
+                        landmarks[idx] = {
+                            'x': landmark.x,
+                            'y': landmark.y,
+                            'z': landmark.z if landmark.HasField('z') else None
+                        }
+                
                 pose_landmarks_list.append(landmarks)
+
                 mp_drawing.draw_landmarks(
                     image_copy,
                     pose_results.pose_landmarks,
@@ -62,12 +64,9 @@ def get_mediapipe_landmarks(input_video_path, output_video_path=None, output_vid
             if output_video:
                 out.write(image_copy)
 
-        #     pbar3.update(1)
-
-        # pbar3.close()
         cap.release()
         if output_video:
             out.release()
         cv2.destroyAllWindows()
 
-    # return pd.DataFrame(pose_landmarks_list)
+    return pd.DataFrame(pose_landmarks_list)
