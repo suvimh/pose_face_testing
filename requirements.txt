@@ -1,0 +1,16 @@
+numpy < 2.0.0
+mediapipe
+opencv-python-headless==4.10.0.82
+dlib
+imageio==2.34.1
+importlib-metadata==7.1.0
+importlib_metadata==7.1.0
+jax==0.4.28
+jaxlib==0.4.28
+ml-dtypes==0.3.2
+psutil==5.9.8
+scipy==1.13.1
+setuptools==70.0.0
+tzdata==2024.1
+urllib3==2.2.1
+

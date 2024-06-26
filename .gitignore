@@ -1,0 +1,14 @@
+# Ignore log files
+*.log
+
+# ignore file with participant data 
+real_test*
+
+# ignore dlib shape predictor file -- large 
+shape_predictor_68_face_landmarks.dat
+
+# Ignore OS-specific files
+.DS_Store
+
+# Ignore pychache 
+__pycache__/
